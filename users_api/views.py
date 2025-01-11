@@ -14,8 +14,9 @@ class RegisterUserAPIView(APIView):
     def post(self, request):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
-            return Response({"message": "User created successfully."}, status=status.HTTP_201_CREATED)
+            user = serializer.save() #saves the user and gets the instance
+            user_data = UserSerializer(user).data #serialize the user instance
+            return Response({"message": "User created successfully.", 'user': user_data}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # API view to log in a user
