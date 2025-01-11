@@ -16,7 +16,7 @@ class RegisterUserAPIView(APIView):
         #serialize user data
         user_serializer = UserSerializer(data=request.data)
 
-        if serializer.is_valid():
+        if user_serializer.is_valid():
             #saves the user and gets the instance
             user = user_serializer.save()
             #serialize the profile
