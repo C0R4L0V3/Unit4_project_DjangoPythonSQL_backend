@@ -9,6 +9,7 @@ from django.contrib.auth import authenticate, login
 from rest_framework import generics
 from profiles_api.serializers import ProfileSerializer # imports the profile serializer
 
+
 # Create your views here.
 # API view to register
 class RegisterUserAPIView(APIView):
@@ -16,7 +17,7 @@ class RegisterUserAPIView(APIView):
         #serialize user data
         user_serializer = UserSerializer(data=request.data)
 
-        if serializer.is_valid():
+        if user_serializer.is_valid():
             #saves the user and gets the instance
             user = user_serializer.save()
             #serialize the profile
@@ -45,7 +46,7 @@ class LoginAPIView(APIView):
             profile = user.profile
             profile_data = ProfileSerializer(profile).data
             user_data = UserSerializer(user).data
-           
+     
             return Response({
                 'message': 'Login successful!',
                 'user': user_data,
