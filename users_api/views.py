@@ -8,7 +8,7 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth import authenticate, login
 from rest_framework import generics
 from profiles_api.serializers import ProfileSerializer # imports the profile serializer
-
+from profiles_api.models import Profile
 
 # Create your views here.
 # API view to register
@@ -20,8 +20,13 @@ class RegisterUserAPIView(APIView):
         if user_serializer.is_valid():
             #saves the user and gets the instance
             user = user_serializer.save()
-            #serialize the profile
-            profile = user.profile
+            #create and save a profile
+            profile = Profile.objects.create(
+                    user=user,
+                    bio="This user has not added a bio.",
+                    profile_picture='.//media/profile_picture/profile_picutre_placeholder.jpg'
+                )
+            #serialize the profile data
             profile_serializer = ProfileSerializer(profile)
 
             return Response({
@@ -42,8 +47,14 @@ class LoginAPIView(APIView):
         if user is not None:
             login(request, user)
         
-            # fetch profile if it exsists, allowing me to capture and connect both the user and profile data on login
-            profile = user.profile
+            # fetch or create - profile if it exsists, allowing me to capture and connect both the user and profile data on login
+            profile = user.profile if hasattr(user, 'profile') else None
+            if not profile:
+                profile = Profile.objects.create(
+                    user=user,
+                    bio="This user has not added a bio.",
+                    profile_picture='.//media/profile_picture/profile_picutre_placeholder.jpg'
+                )
             profile_data = ProfileSerializer(profile).data
             user_data = UserSerializer(user).data
      

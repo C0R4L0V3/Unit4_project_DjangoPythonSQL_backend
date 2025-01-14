@@ -26,8 +26,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('auth/', include('users_api.urls')),
     path('', include('blogpost_api.urls')),
-    path('', include('profiles_api.urls')),
-    path('', include('tags_api.urls')),
+    path('users/', include('profiles_api.urls')),
+    path('tags/', include('tags_api.urls')),
 ]
 
 
