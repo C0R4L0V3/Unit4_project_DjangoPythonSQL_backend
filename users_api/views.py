@@ -14,6 +14,8 @@ from profiles_api.models import Profile
 # API view to register
 class RegisterUserAPIView(APIView):
     def post(self, request):
+        
+
         #serialize user data
         user_serializer = UserSerializer(data=request.data)
 
@@ -21,10 +23,12 @@ class RegisterUserAPIView(APIView):
             #saves the user and gets the instance
             user = user_serializer.save()
             #create and save a profile
-            profile = Profile.objects.create(
+            profile, created = Profile.objects.get_or_create(
                     user=user,
-                    bio="This user has not added a bio.",
-                    profile_picture='.//media/profile_picture/profile_picutre_placeholder.jpg'
+                    defaults={
+                        'bio': "This user has not added a bio.",
+                        'profile_picture': 'profile_picture/profile_picture_placeholder.jpg'
+                    }
                 )
             #serialize the profile data
             profile_serializer = ProfileSerializer(profile)
@@ -52,7 +56,7 @@ class LoginAPIView(APIView):
                 profile = Profile.objects.create(
                     user=user,
                     bio="This user has not added a bio.",
-                    profile_picture='.//media/profile_picture/profile_picutre_placeholder.jpg'
+                    profile_picture='profile_picture/profile_picutre_placeholder.jpg'
                 )
             profile_data = ProfileSerializer(profile).data
             user_data = UserSerializer(user).data

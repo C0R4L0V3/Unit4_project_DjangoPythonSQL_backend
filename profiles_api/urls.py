@@ -14,6 +14,6 @@ urlpatterns = [
 # router.register(r'profiles', ProfileViewSet, basename='profile')
 
 # urlpatterns = router.urls
-4
+
 
 # ProfileViewSet
