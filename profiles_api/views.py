@@ -14,7 +14,27 @@ from rest_framework import generics
 class ProfileView(generics.ListCreateAPIView):
     queryset = Profile.objects.all().order_by('id')
     serializer_class = ProfileSerializer
+    
+    def retrieve(self, request, pk=None):
+        try:
+            #get the profile using the user ID (pk in this case)
+            profile = Profile.objects.get(user_id=pk)
+            profile_data = ProfileSerializer(profile).data
 
+            #fetch the user's blogs
+            blog_post = BlogPostSchema.objects.filter(author=profile.user)
+            blog_post_data = BlogPostSerializer(blog_post, many=True).data
+
+            #  combine the profile and blog post data
+            res_data = {
+                'profile': profile_data,
+                'blogs': blog_post_data
+            }
+            print(res_data)
+            return JsonResponse(res_data)
+        except Profile.DoesNotExist:
+            raise NotFound('Profile not found')
+        
 class ProfileDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Profile.objects.all().order_by('id')
     serializer_class = ProfileSerializer
