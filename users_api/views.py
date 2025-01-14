@@ -9,13 +9,12 @@ from django.contrib.auth import authenticate, login
 from rest_framework import generics
 from profiles_api.serializers import ProfileSerializer # imports the profile serializer
 from profiles_api.models import Profile
+from rest_framework.permissions import IsAuthenticated
 
 # Create your views here.
 # API view to register
 class RegisterUserAPIView(APIView):
     def post(self, request):
-        
-
         #serialize user data
         user_serializer = UserSerializer(data=request.data)
 
@@ -39,6 +38,7 @@ class RegisterUserAPIView(APIView):
                 'profile': profile_serializer.data #profile data
                 }, status=status.HTTP_201_CREATED)
         return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 # API view to log in a user
 class LoginAPIView(APIView):
@@ -68,6 +68,46 @@ class LoginAPIView(APIView):
             }, status=status.HTTP_200_OK)
         else:
             return Response({'error': 'Invalid Credentials'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        
+# user update view
+class UpdateUserProfileView(APIView):
+    permission_classes = [IsAuthenticated] # only authenticate users can update their profile
+
+    def put(self, request):
+        user = request.user # the currently logged in user
+        user_data = request.data.get('user', {}) #extracts the user-related data
+        profile_data = request.data.get('profile', {}) #extracts profile - related data
+
+        #updates the user and allows partial updates
+        user_serializer = UserSerializer(user, data=user_data, partial=True) 
+
+        if user_serializer.is_valid():
+            user_serializer.save() #saves the updated user instance
+        else: 
+            return Response({
+                "user_error": user_serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)      
+          
+
+        #update the Profile
+        profile = user.profile 
+        profile_serializer = ProfileSerializer(profile, data=profile_data, partial=True)
+
+        if profile_serializer.is_valid():
+            profile_serializer.save()
+        else:
+            return Response({
+                "profile_errors": profile_serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        #success response
+        return Response({
+            'messgae': "Profile updated successfully.",
+            "user": user_serializer._data,
+            "profile": profile_serializer.data
+        }, status=status.HTTP_200_OK)
+
 
 #Custom logout view
 class CustomLogoutView(LogoutView):

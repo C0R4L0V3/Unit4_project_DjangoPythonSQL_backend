@@ -17,6 +17,19 @@ class UserSerializer(serializers.ModelSerializer):
             first_name=validated_data.get('first_name', ''),
             last_name=validated_data.get('last_name', '')
         )
-        
-
         return user
+    
+
+    def update(self, instance, validated_data):
+        #allow password update
+        password = validated_data.pop('password', None)
+        if password:
+            instance.set_password(password)
+
+        #updates other fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        instance.save()
+        return instance
+    
