@@ -10,7 +10,7 @@ class Profile(models.Model):
         upload_to='profile_picture/',                          
         blank=True, 
         null=True,
-        default='../media/profile_picture/profile_picutre_placeholder.jpg'
+        default='profile_picture/profile_picutre_placeholder.jpg'
         )
 
     def __str__(self):
